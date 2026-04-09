@@ -40,7 +40,7 @@ Construir uma aplicação simples contendo:
 ## 1. Clonar o repositório
 
 ```bash
-https://github.com/LuizCamilo-Mobile/FIAP-Project-Mobile-Example.git
+git clone https://github.com/helofleury/Auth_Firebase.git
 ```
 
 ## 2. Acessar a pasta
@@ -151,6 +151,21 @@ npm install react-native-screens@4.16.0 --save-exact
 * Adicionar validação de formulário
 * Integrar com Firebase (login real)
 * Persistência de usuário
+
+---
+
+# Conexão
+
+const firebaseConfig = { 
+
+  // apiKey: 'SUA_API_KEY', 
+  // authDomain: 'SEU_AUTH_DOMAIN', 
+  // projectId: 'SEU_PROJECT_ID', 
+  // storageBucket: 'SEU_STORAGE_BUCKET', 
+  // messagingSenderId: 'SEU_MESSAGING_SENDER_ID', 
+  // appId: 'SEU_APP_ID', 
+  // databaseURL: 'SUA_DATABASE_URL', 
+}; 
 
 ---
 
