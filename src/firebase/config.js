@@ -9,7 +9,7 @@ const firebaseConfig = {
   // storageBucket: 'SEU_STORAGE_BUCKET', 
   // messagingSenderId: 'SEU_MESSAGING_SENDER_ID', 
   // appId: 'SEU_APP_ID', 
-  // databaseURL: 'SUA_DATABASE_URL',
+  // databaseURL: 'SUA_DATABASE_URL', 
 };
 
 

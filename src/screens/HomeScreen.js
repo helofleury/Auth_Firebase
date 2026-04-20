@@ -142,42 +142,37 @@ export default function HomeScreen({ navigation, route }) {
 
   } 
 
-  async function handleDeleteProduct(productId) { 
+  async function handleDeleteProduct(productId) {
+  Alert.alert(
+    "Confirmar exclusão",
+    "Tem certeza que deseja excluir este produto?",
+    [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteProduct(productId);
 
-    const confirmDelete = window.confirm( 
+            if (editingProductId === productId) {
+              clearForm();
+            }
 
-      "Tem certeza que deseja excluir este produto?", 
-
-    ); 
-
-    if (!confirmDelete) return; 
-
-    try { 
-
-      await deleteProduct(productId); 
-
- 
-
-      if (editingProductId === productId) { 
-
-        clearForm(); 
-
-      }
-      Alert.alert("Sucesso", "Produto excluído com sucesso!"); 
-
-      await loadProducts(); 
-
-    } catch (error) { 
-
-      console.error(error); 
-
-      Alert.alert("Erro", "Não foi possível excluir o produto."); 
-
-    } 
-
-  } 
-
- 
+            Alert.alert("Sucesso", "Produto excluído com sucesso!");
+            await loadProducts();
+          } catch (error) {
+            console.error(error);
+            Alert.alert("Erro", "Não foi possível excluir o produto.");
+          }
+        },
+      },
+    ]
+  );
+}
 
   function handleOpenScanner() { 
 
