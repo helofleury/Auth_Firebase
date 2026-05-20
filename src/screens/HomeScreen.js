@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+
 import {
   createProduct,
   getProducts,
@@ -22,12 +23,16 @@ export default function HomeScreen({ navigation, route }) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [barcode, setBarcode] = useState("");
+  const [location, setLocation] = useState(null);
+
   const [products, setProducts] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
 
   function formatPrice(value) {
     const numericValue = value.replace(/\D/g, "");
+
     if (!numericValue) return "";
+
     return (Number(numericValue) / 100).toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -52,14 +57,21 @@ export default function HomeScreen({ navigation, route }) {
     if (route.params?.scannedBarcode) {
       setBarcode(String(route.params.scannedBarcode));
     }
+
+    if (route.params?.location) {
+      setLocation(route.params.location);
+    }
+
     if (route.params?.preservedName !== undefined) {
       setName(route.params.preservedName);
     }
+
     if (route.params?.preservedPrice !== undefined) {
       setPrice(route.params.preservedPrice);
     }
   }, [
     route.params?.scannedBarcode,
+    route.params?.location,
     route.params?.preservedName,
     route.params?.preservedPrice,
   ]);
@@ -68,6 +80,7 @@ export default function HomeScreen({ navigation, route }) {
     setName("");
     setPrice("");
     setBarcode("");
+    setLocation(null);
     setEditingProductId(null);
   }
 
@@ -85,14 +98,17 @@ export default function HomeScreen({ navigation, route }) {
       name: name.trim(),
       price: numericPrice,
       barcode: barcode ? barcode.trim() : "",
+      location: location || null,
     };
 
     try {
       if (editingProductId) {
         await updateProduct(editingProductId, productData);
+
         Alert.alert("Sucesso", "Produto atualizado com sucesso!");
       } else {
         await createProduct(productData);
+
         Alert.alert("Sucesso", "Produto cadastrado com sucesso!");
       }
 
@@ -106,13 +122,17 @@ export default function HomeScreen({ navigation, route }) {
 
   function handleEditProduct(product) {
     setName(product.name || "");
+
     setPrice(
       Number(product.price).toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })
     );
+
     setBarcode(product.barcode || "");
+    setLocation(product.location || null);
+
     setEditingProductId(product.id);
   }
 
@@ -121,14 +141,21 @@ export default function HomeScreen({ navigation, route }) {
       "Confirmar exclusão",
       "Tem certeza que deseja excluir este produto?",
       [
-        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
         {
           text: "Excluir",
           style: "destructive",
           onPress: async () => {
             try {
               await deleteProduct(productId);
-              if (editingProductId === productId) clearForm();
+
+              if (editingProductId === productId) {
+                clearForm();
+              }
+
               loadProducts();
             } catch (error) {
               Alert.alert("Erro", "Não foi possível excluir o produto.");
@@ -156,10 +183,19 @@ export default function HomeScreen({ navigation, route }) {
           data={products}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 40,
+          }}
           ListHeaderComponent={
             <>
-              <Text style={{ fontSize: 24, marginTop: 40, marginBottom: 20 }}>
+              <Text
+                style={{
+                  fontSize: 24,
+                  marginTop: 40,
+                  marginBottom: 20,
+                }}
+              >
                 Bem-vindo!
               </Text>
 
@@ -201,15 +237,44 @@ export default function HomeScreen({ navigation, route }) {
                 onChangeText={setBarcode}
                 style={{
                   borderWidth: 1,
-                  marginBottom: 20,
+                  marginBottom: 10,
                   padding: 10,
                   borderRadius: 5,
                 }}
               />
 
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  padding: 10,
+                  marginBottom: 20,
+                }}
+              >
+                <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                  Localização GPS
+                </Text>
+
+                {location ? (
+                  <>
+                    <Text>
+                      Latitude: {location.latitude}
+                    </Text>
+
+                    <Text>
+                      Longitude: {location.longitude}
+                    </Text>
+                  </>
+                ) : (
+                  <Text>Localização não capturada.</Text>
+                )}
+              </View>
+
               <Button
                 title={
-                  editingProductId ? "Atualizar produto" : "Cadastrar produto"
+                  editingProductId
+                    ? "Atualizar produto"
+                    : "Cadastrar produto"
                 }
                 onPress={handleSaveProduct}
               />
@@ -225,7 +290,11 @@ export default function HomeScreen({ navigation, route }) {
               )}
 
               <Text
-                style={{ fontSize: 20, marginTop: 30, marginBottom: 10 }}
+                style={{
+                  fontSize: 20,
+                  marginTop: 30,
+                  marginBottom: 10,
+                }}
               >
                 Produtos cadastrados
               </Text>
@@ -244,6 +313,7 @@ export default function HomeScreen({ navigation, route }) {
               }}
             >
               <Text>Nome: {item.name}</Text>
+
               <Text>
                 Preço: R${" "}
                 {Number(item.price).toLocaleString("pt-BR", {
@@ -251,9 +321,29 @@ export default function HomeScreen({ navigation, route }) {
                   maximumFractionDigits: 2,
                 })}
               </Text>
+
               <Text>
-                Código de barras: {item.barcode || "Não informado"}
+                Código de barras:{" "}
+                {item.barcode || "Não informado"}
               </Text>
+
+              <Text style={{ marginTop: 5 }}>
+                Localização:
+              </Text>
+
+              {item.location ? (
+                <>
+                  <Text>
+                    Latitude: {item.location.latitude}
+                  </Text>
+
+                  <Text>
+                    Longitude: {item.location.longitude}
+                  </Text>
+                </>
+              ) : (
+                <Text>Não informada</Text>
+              )}
 
               <View style={{ marginTop: 10 }}>
                 <Button
